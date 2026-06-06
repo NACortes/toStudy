@@ -211,7 +211,7 @@
 
     .controls {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px;
       padding-bottom: env(safe-area-inset-bottom);
     }
@@ -230,6 +230,17 @@
       background: var(--blue);
       border-color: var(--blue);
       color: #fff;
+    }
+
+    .control.mic {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .control.listening {
+      background: var(--answer);
+      border-color: var(--answer);
     }
 
     .control:disabled {
@@ -366,6 +377,7 @@
     </section>
 
     <div class="controls" aria-label="Controles">
+      <button class="control mic" id="micBtn" type="button">Hablar</button>
       <button class="control primary" id="reviewBtn" type="button">Repaso</button>
       <button class="control" id="shuffleBtn" type="button">Mezclar</button>
       <button class="control" id="resetBtn" type="button">Reiniciar</button>
@@ -402,6 +414,8 @@
     let solved = new Set();
     let mode = "quinteta";
     let reviewItems = [];
+    let recognition = null;
+    let listening = false;
 
     const selectEl = document.getElementById("quintetaSelect");
     const modeLabelEl = document.getElementById("modeLabel");
@@ -410,6 +424,7 @@
     const cardEl = document.getElementById("flashcard");
     const problemEl = document.getElementById("problem");
     const hintEl = document.getElementById("hint");
+    const micBtn = document.getElementById("micBtn");
     const reviewBtn = document.getElementById("reviewBtn");
     const shuffleBtn = document.getElementById("shuffleBtn");
     const resetBtn = document.getElementById("resetBtn");
@@ -456,6 +471,7 @@
       cardEl.classList.toggle("revealed", revealed);
       hintEl.textContent = revealed ? "Toca otra vez para seguir" : "Toca para ver";
       shuffleBtn.disabled = mode === "review";
+      micBtn.disabled = listening || !supportsSpeechRecognition();
     }
 
     function selectQuinteta(index) {
@@ -503,6 +519,158 @@
       renderCard();
     }
 
+    function getCurrentAnswer() {
+      return getActiveItems()[currentIndex].answer;
+    }
+
+    function supportsSpeechRecognition() {
+      return "SpeechRecognition" in window || "webkitSpeechRecognition" in window;
+    }
+
+    function setupSpeechRecognition() {
+      if (!supportsSpeechRecognition()) {
+        micBtn.disabled = true;
+        micBtn.textContent = "Sin micro";
+        hintEl.textContent = "Este navegador no reconoce voz";
+        return;
+      }
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SpeechRecognition();
+      recognition.lang = "es-MX";
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 3;
+
+      recognition.addEventListener("start", () => {
+        listening = true;
+        micBtn.textContent = "Escuchando";
+        micBtn.classList.add("listening");
+        hintEl.textContent = "Di el resultado";
+        micBtn.disabled = true;
+      });
+
+      recognition.addEventListener("end", () => {
+        listening = false;
+        micBtn.textContent = "Hablar";
+        micBtn.classList.remove("listening");
+        micBtn.disabled = false;
+      });
+
+      recognition.addEventListener("result", (event) => {
+        const guesses = Array.from(event.results[0])
+          .map((result) => parseSpokenNumber(result.transcript))
+          .filter((value) => value !== null);
+        checkSpokenAnswer(guesses, event.results[0][0].transcript);
+      });
+
+      recognition.addEventListener("error", () => {
+        hintEl.textContent = "No escuche bien. Intenta otra vez";
+      });
+    }
+
+    function startListening() {
+      if (!recognition || listening) return;
+      try {
+        recognition.start();
+      } catch (error) {
+        hintEl.textContent = "Espera un momento e intenta otra vez";
+      }
+    }
+
+    function checkSpokenAnswer(guesses, transcript) {
+      const answer = getCurrentAnswer();
+      if (guesses.includes(answer)) {
+        revealed = true;
+        solved.add(currentIndex);
+        renderCard();
+        hintEl.textContent = "Correcto. Toca para seguir";
+        return;
+      }
+
+      const heard = transcript.trim();
+      hintEl.textContent = heard ? `Escuche "${heard}". Intenta otra vez` : "Intenta otra vez";
+    }
+
+    function parseSpokenNumber(text) {
+      const clean = normalizeText(text);
+      const digitMatch = clean.match(/\d+/);
+      if (digitMatch) {
+        return Number(digitMatch[0]);
+      }
+
+      const compact = clean.replace(/\s+/g, "");
+      const compactNumbers = {
+        veintiuno: 21,
+        veintidos: 22,
+        veintitres: 23,
+        veinticuatro: 24,
+        veinticinco: 25,
+        veintiseis: 26,
+        veintisiete: 27,
+        veintiocho: 28,
+        veintinueve: 29
+      };
+      if (compactNumbers[compact] !== undefined) {
+        return compactNumbers[compact];
+      }
+
+      const values = {
+        cero: 0,
+        un: 1,
+        uno: 1,
+        una: 1,
+        dos: 2,
+        tres: 3,
+        cuatro: 4,
+        cinco: 5,
+        seis: 6,
+        siete: 7,
+        ocho: 8,
+        nueve: 9,
+        diez: 10,
+        once: 11,
+        doce: 12,
+        trece: 13,
+        catorce: 14,
+        quince: 15,
+        dieciseis: 16,
+        dieziseis: 16,
+        diecisiete: 17,
+        diezisiete: 17,
+        dieciocho: 18,
+        diecinueve: 19,
+        diezinueve: 19,
+        veinte: 20,
+        treinta: 30,
+        cuarenta: 40,
+        cincuenta: 50,
+        sesenta: 60,
+        setenta: 70,
+        ochenta: 80
+      };
+
+      if (values[clean] !== undefined) {
+        return values[clean];
+      }
+
+      const parts = clean.split(/\s+y\s+|\s+/).filter(Boolean);
+      if (parts.length === 2 && values[parts[0]] >= 20 && values[parts[1]] > 0 && values[parts[1]] < 10) {
+        return values[parts[0]] + values[parts[1]];
+      }
+
+      return null;
+    }
+
+    function normalizeText(text) {
+      return text
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[.,;:!?¿¡]/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
     function buildReview() {
       const pool = quintetas
         .slice(0, currentQuinteta + 1)
@@ -544,6 +712,7 @@
       selectQuinteta(Number(event.target.value));
     });
     cardEl.addEventListener("click", handleCardTap);
+    micBtn.addEventListener("click", startListening);
     reviewBtn.addEventListener("click", buildReview);
     shuffleBtn.addEventListener("click", shuffleCurrent);
     resetBtn.addEventListener("click", resetCurrent);
@@ -557,6 +726,7 @@
     });
 
     renderSelector();
+    setupSpeechRecognition();
     renderCard();
   </script>
 </body>
