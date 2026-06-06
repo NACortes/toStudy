@@ -247,6 +247,56 @@
       opacity: 0.48;
     }
 
+    .toast {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      z-index: 20;
+      width: min(330px, calc(100svw - 32px));
+      padding: 18px 16px;
+      border: 3px solid var(--accent);
+      border-radius: 8px;
+      background: #ffffff;
+      box-shadow: 0 18px 44px rgba(33, 48, 54, 0.24);
+      color: var(--ink);
+      opacity: 0;
+      pointer-events: none;
+      text-align: center;
+      transform: translate(-50%, -50%) scale(0.94);
+      transition: opacity 140ms ease, transform 140ms ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .toast.success {
+      border-color: var(--accent);
+      background: #effaf7;
+    }
+
+    .toast.try-again {
+      border-color: var(--answer);
+      background: #fff1ec;
+    }
+
+    .toast-title {
+      display: block;
+      font-size: clamp(1.45rem, 7svw, 2rem);
+      font-weight: 900;
+      line-height: 1.05;
+    }
+
+    .toast-detail {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: clamp(0.95rem, 4svw, 1.08rem);
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
     @media (max-height: 700px) and (orientation: portrait) {
       .app {
         gap: 8px;
@@ -384,6 +434,11 @@
     </div>
   </main>
 
+  <div class="toast" id="voiceToast" role="status" aria-live="polite" aria-hidden="true">
+    <span class="toast-title" id="toastTitle"></span>
+    <span class="toast-detail" id="toastDetail"></span>
+  </div>
+
   <script>
     const originalQuintetas = [
       [[6, 9], [7, 8], [7, 6], [6, 8], [4, 8]],
@@ -416,6 +471,8 @@
     let reviewItems = [];
     let recognition = null;
     let listening = false;
+    let voiceAdvanceTimer = null;
+    let toastTimer = null;
 
     const selectEl = document.getElementById("quintetaSelect");
     const modeLabelEl = document.getElementById("modeLabel");
@@ -424,6 +481,9 @@
     const cardEl = document.getElementById("flashcard");
     const problemEl = document.getElementById("problem");
     const hintEl = document.getElementById("hint");
+    const toastEl = document.getElementById("voiceToast");
+    const toastTitleEl = document.getElementById("toastTitle");
+    const toastDetailEl = document.getElementById("toastDetail");
     const micBtn = document.getElementById("micBtn");
     const reviewBtn = document.getElementById("reviewBtn");
     const shuffleBtn = document.getElementById("shuffleBtn");
@@ -475,6 +535,7 @@
     }
 
     function selectQuinteta(index) {
+      clearVoiceTimers();
       currentQuinteta = index;
       currentIndex = 0;
       revealed = false;
@@ -492,6 +553,7 @@
     }
 
     function nextProblem() {
+      clearVoiceTimers();
       currentIndex = (currentIndex + 1) % getActiveItems().length;
       revealed = false;
       renderCard();
@@ -506,6 +568,7 @@
     }
 
     function shuffleCurrent() {
+      clearVoiceTimers();
       const items = quintetas[currentQuinteta].items;
       for (let i = items.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -565,6 +628,7 @@
 
       recognition.addEventListener("error", () => {
         hintEl.textContent = "No escuche bien. Intenta otra vez";
+        showVoiceToast("try-again", "Intenta nuevamente", "No escuche bien");
       });
     }
 
@@ -574,6 +638,7 @@
         recognition.start();
       } catch (error) {
         hintEl.textContent = "Espera un momento e intenta otra vez";
+        showVoiceToast("try-again", "Intenta nuevamente", "Espera un momento");
       }
     }
 
@@ -583,12 +648,36 @@
         revealed = true;
         solved.add(currentIndex);
         renderCard();
-        hintEl.textContent = "Correcto. Toca para seguir";
+        showVoiceToast("success", "Muy bien", `${answer} es correcto`);
+        voiceAdvanceTimer = window.setTimeout(() => {
+          nextProblem();
+        }, 900);
         return;
       }
 
       const heard = transcript.trim();
-      hintEl.textContent = heard ? `Escuche "${heard}". Intenta otra vez` : "Intenta otra vez";
+      const message = heard ? `Escuche "${heard}"` : "No escuche el resultado";
+      hintEl.textContent = "Intenta otra vez";
+      showVoiceToast("try-again", "Intenta nuevamente", message);
+    }
+
+    function showVoiceToast(kind, title, detail) {
+      window.clearTimeout(toastTimer);
+      toastEl.className = `toast ${kind} show`;
+      toastEl.setAttribute("aria-hidden", "false");
+      toastTitleEl.textContent = title;
+      toastDetailEl.textContent = detail;
+      toastTimer = window.setTimeout(() => {
+        toastEl.classList.remove("show");
+        toastEl.setAttribute("aria-hidden", "true");
+      }, kind === "success" ? 780 : 1050);
+    }
+
+    function clearVoiceTimers() {
+      window.clearTimeout(voiceAdvanceTimer);
+      window.clearTimeout(toastTimer);
+      toastEl.classList.remove("show");
+      toastEl.setAttribute("aria-hidden", "true");
     }
 
     function parseSpokenNumber(text) {
@@ -672,6 +761,7 @@
     }
 
     function buildReview() {
+      clearVoiceTimers();
       const pool = quintetas
         .slice(0, currentQuinteta + 1)
         .flatMap((q, qIndex) => q.items.map((item) => ({ ...item, quinteta: qIndex + 1 })));
@@ -698,6 +788,7 @@
     }
 
     function resetCurrent() {
+      clearVoiceTimers();
       quintetas[currentQuinteta] = copyQuinteta(originalQuintetas[currentQuinteta]);
       currentIndex = 0;
       revealed = false;
