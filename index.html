@@ -31,10 +31,12 @@
     body {
       margin: 0;
       min-height: 100vh;
+      min-height: 100dvh;
       padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
       background: linear-gradient(180deg, #f8f1e4 0%, #edf6f5 100%);
       color: var(--ink);
       font-family: Arial, Helvetica, sans-serif;
+      overflow-x: hidden;
     }
 
     button,
@@ -50,18 +52,19 @@
     }
 
     .app {
-      width: min(430px, 100%);
+      width: min(440px, 100svw);
       min-height: 100vh;
+      min-height: 100dvh;
       margin: 0 auto;
-      padding: 16px 14px 18px;
+      padding: clamp(10px, 3.6svw, 18px);
       display: grid;
-      grid-template-rows: auto 1fr auto;
-      gap: 14px;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: clamp(10px, 2.8svw, 16px);
     }
 
     .topbar {
       display: grid;
-      gap: 12px;
+      gap: clamp(8px, 2.4svw, 12px);
     }
 
     .top-row {
@@ -73,17 +76,17 @@
 
     h1 {
       margin: 0;
-      font-size: 1.9rem;
+      font-size: clamp(1.6rem, 8svw, 2.1rem);
       line-height: 1;
       letter-spacing: 0;
     }
 
     .score {
-      min-width: 90px;
+      min-width: clamp(82px, 24svw, 96px);
       border: 2px solid var(--line);
       border-radius: 8px;
       background: var(--panel);
-      padding: 7px 8px;
+      padding: 6px 8px;
       text-align: center;
     }
 
@@ -98,7 +101,7 @@
     .score strong {
       display: block;
       color: var(--accent-dark);
-      font-size: 1.3rem;
+      font-size: clamp(1.1rem, 5.2svw, 1.35rem);
       line-height: 1.1;
     }
 
@@ -115,19 +118,20 @@
 
     select {
       width: 100%;
-      min-height: 52px;
+      min-height: clamp(48px, 12svw, 56px);
       border: 2px solid var(--line);
       background: var(--panel);
       color: var(--ink);
       padding: 0 12px;
-      font-size: 1.05rem;
+      font-size: clamp(1rem, 4.5svw, 1.12rem);
       font-weight: 900;
     }
 
     .practice {
       display: grid;
       align-content: center;
-      gap: 14px;
+      gap: clamp(8px, 2.8svw, 14px);
+      min-height: 0;
     }
 
     .status {
@@ -135,19 +139,22 @@
       justify-content: space-between;
       gap: 12px;
       color: var(--muted);
-      font-size: 0.95rem;
+      font-size: clamp(0.88rem, 3.7svw, 0.98rem);
       font-weight: 800;
+      line-height: 1.2;
     }
 
     .mode {
       color: var(--accent-dark);
       text-align: right;
+      white-space: nowrap;
     }
 
     .flashcard {
       width: 100%;
-      min-height: 330px;
-      padding: 22px 14px;
+      min-height: 0;
+      height: clamp(250px, 50dvh, 430px);
+      padding: clamp(14px, 4svw, 24px);
       border: 2px solid var(--line);
       border-radius: 8px;
       background: var(--panel);
@@ -157,13 +164,17 @@
       user-select: none;
     }
 
+    .flashcard > div {
+      width: 100%;
+    }
+
     .problem {
       display: grid;
       grid-template-columns: auto auto auto;
       align-items: center;
       justify-content: center;
-      gap: 13px 16px;
-      font-size: 3.7rem;
+      gap: clamp(9px, 3.2svw, 16px);
+      font-size: clamp(3rem, 16svw, 5.1rem);
       font-weight: 900;
       line-height: 1;
       text-align: center;
@@ -176,9 +187,9 @@
     .answer {
       grid-column: 2 / span 2;
       min-width: 1.75em;
-      border: 4px solid var(--ink);
+      border: clamp(3px, 1svw, 5px) solid var(--ink);
       border-radius: 8px;
-      padding: 2px 10px 8px;
+      padding: 0.02em 0.16em 0.1em;
       background: #fff;
       color: transparent;
     }
@@ -190,9 +201,9 @@
     }
 
     .hint {
-      margin: 20px 0 0;
+      margin: clamp(12px, 4svw, 20px) 0 0;
       color: var(--muted);
-      font-size: 1rem;
+      font-size: clamp(0.92rem, 3.8svw, 1.05rem);
       font-weight: 800;
       line-height: 1.3;
       text-align: center;
@@ -206,12 +217,12 @@
     }
 
     .control {
-      min-height: 52px;
+      min-height: clamp(48px, 12svw, 56px);
       padding: 6px;
       background: var(--panel);
       border: 2px solid var(--line);
       color: var(--ink);
-      font-size: 0.95rem;
+      font-size: clamp(0.88rem, 3.7svw, 0.98rem);
       font-weight: 900;
     }
 
@@ -225,18 +236,100 @@
       opacity: 0.48;
     }
 
-    @media (max-height: 700px) {
+    @media (max-height: 700px) and (orientation: portrait) {
       .app {
-        gap: 10px;
-        padding-top: 10px;
+        gap: 8px;
       }
 
       .flashcard {
-        min-height: 260px;
+        height: clamp(210px, 43dvh, 280px);
       }
 
       .problem {
-        font-size: 3.1rem;
+        font-size: clamp(2.55rem, 14svw, 3.45rem);
+      }
+
+      .hint {
+        margin-top: 10px;
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 540px) {
+      body {
+        background: linear-gradient(90deg, #f8f1e4 0%, #edf6f5 100%);
+      }
+
+      .app {
+        width: min(920px, 100svw);
+        grid-template-columns: minmax(220px, 0.8fr) minmax(270px, 1fr) minmax(120px, 0.42fr);
+        grid-template-rows: minmax(0, 1fr);
+        align-items: stretch;
+        gap: clamp(8px, 1.8svw, 16px);
+        padding: clamp(8px, 2svh, 14px) clamp(10px, 2svw, 18px);
+      }
+
+      .topbar,
+      .practice,
+      .controls {
+        min-height: 0;
+      }
+
+      .topbar {
+        align-content: center;
+      }
+
+      .top-row {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .score {
+        width: 100%;
+      }
+
+      .practice {
+        align-content: stretch;
+        grid-template-rows: auto minmax(0, 1fr);
+      }
+
+      .status {
+        align-items: center;
+      }
+
+      .flashcard {
+        height: auto;
+        min-height: 0;
+        padding: clamp(10px, 3svh, 18px);
+      }
+
+      .problem {
+        font-size: clamp(2.4rem, 10svh, 4rem);
+        gap: clamp(7px, 2svh, 13px);
+      }
+
+      .hint {
+        margin-top: clamp(8px, 2.5svh, 14px);
+      }
+
+      .controls {
+        grid-template-columns: 1fr;
+        align-content: center;
+      }
+
+      .control,
+      select {
+        min-height: clamp(42px, 13svh, 54px);
+      }
+    }
+
+    @media (max-width: 340px) {
+      .app {
+        padding-right: 10px;
+        padding-left: 10px;
+      }
+
+      .problem {
+        font-size: clamp(2.45rem, 15svw, 3.2rem);
       }
     }
   </style>
