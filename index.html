@@ -670,7 +670,7 @@
       toastTimer = window.setTimeout(() => {
         toastEl.classList.remove("show");
         toastEl.setAttribute("aria-hidden", "true");
-      }, kind === "success" ? 780 : 1050);
+      }, kind === "success" ? 2000 : 3000);
     }
 
     function clearVoiceTimers() {
