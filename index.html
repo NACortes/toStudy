@@ -1,943 +1,261 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-71FR5FQDS7"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-  
-    gtag('config', 'G-71FR5FQDS7');
-  </script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Quintetas</title>
+  <title>Quintetas – Bienvenida</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;900&display=swap" rel="stylesheet">
   <style>
     :root {
-      color-scheme: light;
-      --ink: #213036;
-      --muted: #6b7b82;
-      --paper: #fffaf0;
-      --panel: #ffffff;
-      --line: #ded3bf;
-      --accent: #197278;
-      --accent-dark: #12565b;
-      --answer: #d95d39;
-      --blue: #2f6690;
-      --shadow: 0 10px 26px rgba(33, 48, 54, 0.12);
+      --teal:    #197278;
+      --teal2:   #12565b;
+      --orange:  #d95d39;
+      --blue:    #2f6690;
+      --paper:   #fffaf0;
+      --ink:     #213036;
     }
 
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      background: var(--paper);
+      font-family: 'Nunito', sans-serif;
     }
 
-    html {
-      min-height: 100%;
+    /* ── canvas decorative circles ── */
+    #bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .circle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0;
+      animation: floatIn 1s ease forwards;
+    }
+    .c1 { width: 340px; height: 340px; top: -100px; left: -80px;  background: radial-gradient(circle, #edf6f5, #c8e8e4); animation-delay: 0s; }
+    .c2 { width: 220px; height: 220px; bottom: -60px; right: -50px; background: radial-gradient(circle, #fde8e0, #f5c4b0); animation-delay: .15s; }
+    .c3 { width: 120px; height: 120px; top: 55%; left: 8%;  background: radial-gradient(circle, #d0ecf5, #b0d8ea); animation-delay: .25s; }
+    .c4 { width: 80px;  height: 80px;  top: 20%; right: 10%; background: radial-gradient(circle, #fdf0c2, #f5d97a); animation-delay: .35s; }
+
+    @keyframes floatIn {
+      from { opacity: 0; transform: scale(.7); }
+      to   { opacity: 1; transform: scale(1); }
     }
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      min-height: 100dvh;
-      padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
-      background: linear-gradient(180deg, #f8f1e4 0%, #edf6f5 100%);
-      color: var(--ink);
-      font-family: Arial, Helvetica, sans-serif;
-      overflow-x: hidden;
-    }
-
-    button,
-    input,
-    select {
-      border-radius: 8px;
-      font: inherit;
-      touch-action: manipulation;
-    }
-
-    button {
-      border: 0;
-      cursor: pointer;
-    }
-
-    .app {
-      width: min(440px, 100svw);
-      min-height: 100vh;
-      min-height: 100dvh;
-      margin: 0 auto;
-      padding: clamp(10px, 3.6svw, 18px);
-      display: grid;
-      grid-template-rows: auto minmax(0, 1fr) auto;
-      gap: clamp(10px, 2.8svw, 16px);
-    }
-
-    .topbar {
-      display: grid;
-      gap: clamp(8px, 2.4svw, 12px);
-    }
-
-    .top-row {
+    /* ── main stage ── */
+    #stage {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      height: 100%;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(1.6rem, 8svw, 2.1rem);
-      line-height: 1;
-      letter-spacing: 0;
-    }
-
-    .score {
-      min-width: clamp(82px, 24svw, 96px);
-      border: 2px solid var(--line);
-      border-radius: 8px;
-      background: var(--panel);
-      padding: 6px 8px;
-      text-align: center;
-    }
-
-    .score span {
-      display: block;
-      color: var(--muted);
-      font-size: 0.72rem;
-      font-weight: 800;
-      text-transform: uppercase;
-    }
-
-    .score strong {
-      display: block;
-      color: var(--accent-dark);
-      font-size: clamp(1.1rem, 5.2svw, 1.35rem);
-      line-height: 1.1;
-    }
-
-    .selector {
-      display: grid;
-      gap: 6px;
-    }
-
-    .selector-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: 8px;
-    }
-
-    .selector label {
-      color: var(--muted);
-      font-size: 0.9rem;
-      font-weight: 800;
-    }
-
-    input,
-    select {
-      width: 100%;
-      min-height: clamp(48px, 12svw, 56px);
-      border: 2px solid var(--line);
-      background: var(--panel);
-      color: var(--ink);
-      padding: 0 12px;
-      font-size: clamp(1rem, 4.5svw, 1.12rem);
-      font-weight: 900;
-    }
-
-    input {
-      text-align: center;
-    }
-
-    .practice {
-      display: grid;
-      align-content: center;
-      gap: clamp(8px, 2.8svw, 14px);
-      min-height: 0;
-    }
-
-    .status {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      color: var(--muted);
-      font-size: clamp(0.88rem, 3.7svw, 0.98rem);
-      font-weight: 800;
-      line-height: 1.2;
-    }
-
-    .mode {
-      color: var(--accent-dark);
-      text-align: right;
-      white-space: nowrap;
-    }
-
-    .flashcard {
-      width: 100%;
-      min-height: 0;
-      height: clamp(250px, 50dvh, 430px);
-      padding: clamp(14px, 4svw, 24px);
-      border: 2px solid var(--line);
-      border-radius: 8px;
-      background: var(--panel);
-      box-shadow: var(--shadow);
-      display: grid;
-      place-items: center;
-      user-select: none;
-    }
-
-    .flashcard > div {
-      width: 100%;
-    }
-
-    .problem {
-      display: grid;
-      grid-template-columns: auto auto auto;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: clamp(9px, 3.2svw, 16px);
-      font-size: clamp(3rem, 16svw, 5.1rem);
-      font-weight: 900;
-      line-height: 1;
-      text-align: center;
+      gap: 0;
+      padding: 24px;
     }
 
-    .equals {
-      grid-column: 1;
+    /* ── multiplications flying in ── */
+    #mults {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px 14px;
+      max-width: 340px;
+      margin-bottom: 28px;
+      min-height: 60px;
     }
-
-    .answer {
-      grid-column: 2 / span 2;
-      min-width: 1.75em;
-      border: clamp(3px, 1svw, 5px) solid var(--ink);
-      border-radius: 8px;
-      padding: 0.02em 0.16em 0.1em;
-      background: #fff;
-      color: transparent;
-    }
-
-    .flashcard.revealed .answer {
-      border-color: var(--answer);
-      background: #fff1ec;
-      color: var(--answer);
-    }
-
-    .hint {
-      margin: clamp(12px, 4svw, 20px) 0 0;
-      color: var(--muted);
-      font-size: clamp(0.92rem, 3.8svw, 1.05rem);
-      font-weight: 800;
-      line-height: 1.3;
-      text-align: center;
-    }
-
-    .answer-form {
-      display: none;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 8px;
-      margin: clamp(12px, 4svw, 20px) auto 0;
-      width: min(260px, 100%);
-    }
-
-    .answer-form.show {
-      display: grid;
-    }
-
-    .answer-form button {
-      min-height: clamp(48px, 12svw, 56px);
-      padding: 0 14px;
-      background: var(--blue);
-      color: #fff;
-      font-weight: 900;
-    }
-
-    .controls {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
-      padding-bottom: env(safe-area-inset-bottom);
-    }
-
-    .control {
-      min-height: clamp(48px, 12svw, 56px);
-      padding: 6px;
-      background: var(--panel);
-      border: 2px solid var(--line);
-      color: var(--ink);
-      font-size: clamp(0.88rem, 3.7svw, 0.98rem);
-      font-weight: 900;
-    }
-
-    .control.primary {
-      background: var(--blue);
-      border-color: var(--blue);
-      color: #fff;
-    }
-
-    .control.mic {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #fff;
-    }
-
-    .control.listening {
-      background: var(--answer);
-      border-color: var(--answer);
-    }
-
-    .control:disabled {
-      opacity: 0.48;
-    }
-
-    .toast {
-      position: fixed;
-      left: 50%;
-      top: 50%;
-      z-index: 20;
-      width: min(330px, calc(100svw - 32px));
-      padding: 18px 16px;
-      border: 3px solid var(--accent);
-      border-radius: 8px;
-      background: #ffffff;
-      box-shadow: 0 18px 44px rgba(33, 48, 54, 0.24);
-      color: var(--ink);
+    .mult {
+      font-family: 'Fredoka One', sans-serif;
+      font-size: clamp(1.05rem, 4.5vw, 1.3rem);
+      color: var(--teal);
       opacity: 0;
-      pointer-events: none;
+      transform: translateY(18px) scale(.85);
+      animation: popIn .45s cubic-bezier(.34,1.56,.64,1) forwards;
+    }
+    .mult.orange { color: var(--orange); }
+    .mult.blue   { color: var(--blue); }
+
+    @keyframes popIn {
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* ── star burst icon ── */
+    #icon {
+      font-size: clamp(3.8rem, 16vw, 5.5rem);
+      line-height: 1;
+      opacity: 0;
+      animation: zoomBounce .6s cubic-bezier(.34,1.56,.64,1) .4s forwards;
+      filter: drop-shadow(0 6px 14px rgba(25,114,120,.25));
+    }
+    @keyframes zoomBounce {
+      from { opacity: 0; transform: scale(.3) rotate(-15deg); }
+      to   { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+
+    /* ── title ── */
+    #title {
+      font-family: 'Fredoka One', sans-serif;
+      font-size: clamp(3rem, 14vw, 4.6rem);
+      color: var(--teal2);
+      line-height: 1;
+      letter-spacing: .5px;
       text-align: center;
-      transform: translate(-50%, -50%) scale(0.94);
-      transition: opacity 140ms ease, transform 140ms ease;
+      margin-top: 10px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: slideUp .5s ease .7s forwards;
+    }
+    @keyframes slideUp {
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    .toast.show {
-      opacity: 1;
-      transform: translate(-50%, -50%) scale(1);
+    /* ── subtitle ── */
+    #sub {
+      font-size: clamp(.95rem, 4vw, 1.18rem);
+      font-weight: 700;
+      color: #5a7a80;
+      text-align: center;
+      margin-top: 10px;
+      opacity: 0;
+      animation: slideUp .5s ease .95s forwards;
+      max-width: 280px;
+      line-height: 1.4;
     }
 
-    .toast.success {
-      border-color: var(--accent);
-      background: #effaf7;
+    /* ── progress bar ── */
+    #bar-wrap {
+      margin-top: 40px;
+      width: min(280px, 80%);
+      height: 8px;
+      background: #dde8e8;
+      border-radius: 99px;
+      overflow: hidden;
+      opacity: 0;
+      animation: fadeIn .4s ease 1.2s forwards;
+    }
+    #bar {
+      height: 100%;
+      width: 0%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--teal), var(--blue));
+      animation: grow 2.2s cubic-bezier(.4,0,.2,1) 1.3s forwards;
+    }
+    @keyframes grow {
+      to { width: 100%; }
+    }
+    @keyframes fadeIn {
+      to { opacity: 1; }
     }
 
-    .toast.try-again {
-      border-color: var(--answer);
-      background: #fff1ec;
+    /* ── fade out the whole page ── */
+    body.leaving {
+      animation: fadeOut .55s ease forwards;
+    }
+    @keyframes fadeOut {
+      to { opacity: 0; }
     }
 
-    .toast-title {
-      display: block;
-      font-size: clamp(1.45rem, 7svw, 2rem);
-      font-weight: 900;
-      line-height: 1.05;
-    }
-
-    .toast-detail {
-      display: block;
-      margin-top: 8px;
-      color: var(--muted);
-      font-size: clamp(0.95rem, 4svw, 1.08rem);
-      font-weight: 800;
-      line-height: 1.25;
-    }
-
-    @media (max-height: 700px) and (orientation: portrait) {
-      .app {
-        gap: 8px;
-      }
-
-      .flashcard {
-        height: clamp(210px, 43dvh, 280px);
-      }
-
-      .problem {
-        font-size: clamp(2.55rem, 14svw, 3.45rem);
-      }
-
-      .hint {
-        margin-top: 10px;
-      }
-    }
-
-    @media (orientation: landscape) and (max-height: 540px) {
-      body {
-        background: linear-gradient(90deg, #f8f1e4 0%, #edf6f5 100%);
-      }
-
-      .app {
-        width: min(920px, 100svw);
-        grid-template-columns: minmax(220px, 0.8fr) minmax(270px, 1fr) minmax(120px, 0.42fr);
-        grid-template-rows: minmax(0, 1fr);
-        align-items: stretch;
-        gap: clamp(8px, 1.8svw, 16px);
-        padding: clamp(8px, 2svh, 14px) clamp(10px, 2svw, 18px);
-      }
-
-      .topbar,
-      .practice,
-      .controls {
-        min-height: 0;
-      }
-
-      .topbar {
-        align-content: center;
-      }
-
-      .top-row {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-
-      .score {
-        width: 100%;
-      }
-
-      .practice {
-        align-content: stretch;
-        grid-template-rows: auto minmax(0, 1fr);
-      }
-
-      .status {
-        align-items: center;
-      }
-
-      .flashcard {
-        height: auto;
-        min-height: 0;
-        padding: clamp(10px, 3svh, 18px);
-      }
-
-      .problem {
-        font-size: clamp(2.4rem, 10svh, 4rem);
-        gap: clamp(7px, 2svh, 13px);
-      }
-
-      .hint {
-        margin-top: clamp(8px, 2.5svh, 14px);
-      }
-
-      .controls {
-        grid-template-columns: 1fr;
-        align-content: center;
-      }
-
-      .control,
-      input,
-      select {
-        min-height: clamp(42px, 13svh, 54px);
-      }
-
-      .answer-form {
-        width: min(240px, 100%);
-      }
-    }
-
-    @media (max-width: 340px) {
-      .app {
-        padding-right: 10px;
-        padding-left: 10px;
-      }
-
-      .problem {
-        font-size: clamp(2.45rem, 15svw, 3.2rem);
-      }
+    /* ── confetti dots ── */
+    .dot {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 50;
+      opacity: 0;
     }
   </style>
 </head>
 <body>
-  <main class="app">
-    <header class="topbar">
-      <div class="top-row">
-        <h1>Quintetas</h1>
-        <div class="score" aria-live="polite">
-          <span>Resueltas</span>
-          <strong id="score">0 / 5</strong>
-        </div>
-      </div>
 
-      <div class="selector-grid">
-        <div class="selector">
-          <label for="quintetaSelect">Quinteta</label>
-          <select id="quintetaSelect" aria-label="Seleccionar quinteta"></select>
-        </div>
+  <!-- Decorative background circles -->
+  <div id="bg">
+    <div class="circle c1"></div>
+    <div class="circle c2"></div>
+    <div class="circle c3"></div>
+    <div class="circle c4"></div>
+  </div>
 
-        <div class="selector">
-          <label for="practiceModeSelect">Modo</label>
-          <select id="practiceModeSelect" aria-label="Seleccionar modo">
-            <option value="study">Estudiar</option>
-            <option value="eval">Evaluar</option>
-          </select>
-        </div>
-      </div>
-    </header>
+  <div id="stage">
+    <!-- Mini multiplications flying in -->
+    <div id="mults"></div>
 
-    <section class="practice" aria-label="Practica de multiplicaciones">
-      <div class="status">
-        <span id="progress">Operacion 1 de 5</span>
-        <span class="mode" id="modeLabel">Quinteta 1</span>
-      </div>
+    <!-- Star icon -->
+    <div id="icon">⭐</div>
 
-      <div class="flashcard" id="flashcard" role="button" tabindex="0" aria-label="Mostrar resultado">
-        <div>
-          <div class="problem" id="problem"></div>
-          <p class="hint" id="hint">Toca para ver</p>
-          <form class="answer-form" id="answerForm">
-            <input id="answerInput" type="number" inputmode="numeric" autocomplete="off" aria-label="Escribir resultado">
-            <button type="submit">Revisar</button>
-          </form>
-        </div>
-      </div>
-    </section>
+    <!-- Title -->
+    <div id="title">Quintetas</div>
 
-    <div class="controls" aria-label="Controles">
-      <button class="control mic" id="micBtn" type="button">Hablar</button>
-      <button class="control primary" id="reviewBtn" type="button">Repaso</button>
-      <button class="control" id="shuffleBtn" type="button">Mezclar</button>
-      <button class="control" id="resetBtn" type="button">Reiniciar</button>
-    </div>
-  </main>
+    <!-- Subtitle -->
+    <div id="sub">Colegio Colón · Kaitlynn Priscila</div>
 
-  <div class="toast" id="voiceToast" role="status" aria-live="polite" aria-hidden="true">
-    <span class="toast-title" id="toastTitle"></span>
-    <span class="toast-detail" id="toastDetail"></span>
+    <!-- Loading bar -->
+    <div id="bar-wrap"><div id="bar"></div></div>
   </div>
 
   <script>
-    const originalQuintetas = [
-      [[6, 9], [7, 8], [7, 6], [6, 8], [4, 8]],
-      [[4, 9], [7, 9], [7, 7], [6, 7], [4, 7]],
-      [[7, 5], [5, 9], [8, 8], [9, 7], [8, 5]],
-      [[9, 6], [3, 9], [8, 7], [5, 6], [4, 6]],
-      [[9, 4], [5, 8], [3, 8], [8, 6], [7, 4]],
-      [[6, 6], [9, 5], [8, 9], [3, 6], [8, 3]],
-      [[4, 4], [8, 4], [9, 8], [4, 3], [5, 7]],
-      [[9, 3], [4, 5], [3, 7], [6, 4], [6, 3]],
-      [[6, 5], [3, 4], [5, 5], [9, 9], [5, 3]],
-      [[5, 4], [0, 1], [7, 3], [3, 2], [6, 0]]
-    ].map((items, index) => ({
-      name: `Quinteta ${index + 1}`,
-      items: items.map(([a, b], itemIndex) => ({
-        a,
-        b,
-        answer: a * b,
-        number: index * 5 + itemIndex + 1
-      }))
-    }));
+    // ── 1. Generate flying multiplication problems ──
+    const problems = [
+      "6×9","7×8","7×6","6×8","4×8",
+      "7×7","9×6","8×7","5×8","9×9"
+    ];
+    const mults = document.getElementById("mults");
+    const colors = ["", "orange", "blue", "", "orange", "blue", "", "orange", "blue", ""];
 
-    const quintetas = originalQuintetas.map(copyQuinteta);
-
-    let currentQuinteta = 0;
-    let currentIndex = 0;
-    let revealed = false;
-    let solved = new Set();
-    let mode = "quinteta";
-    let practiceMode = "study";
-    let reviewItems = [];
-    let recognition = null;
-    let listening = false;
-    let voiceAdvanceTimer = null;
-    let toastTimer = null;
-
-    const selectEl = document.getElementById("quintetaSelect");
-    const practiceModeEl = document.getElementById("practiceModeSelect");
-    const modeLabelEl = document.getElementById("modeLabel");
-    const progressEl = document.getElementById("progress");
-    const scoreEl = document.getElementById("score");
-    const cardEl = document.getElementById("flashcard");
-    const problemEl = document.getElementById("problem");
-    const hintEl = document.getElementById("hint");
-    const answerFormEl = document.getElementById("answerForm");
-    const answerInputEl = document.getElementById("answerInput");
-    const toastEl = document.getElementById("voiceToast");
-    const toastTitleEl = document.getElementById("toastTitle");
-    const toastDetailEl = document.getElementById("toastDetail");
-    const micBtn = document.getElementById("micBtn");
-    const reviewBtn = document.getElementById("reviewBtn");
-    const shuffleBtn = document.getElementById("shuffleBtn");
-    const resetBtn = document.getElementById("resetBtn");
-
-    function copyQuinteta(quinteta) {
-      return {
-        name: quinteta.name,
-        items: quinteta.items.map((item) => ({ ...item }))
-      };
-    }
-
-    function getActiveItems() {
-      return mode === "review" ? reviewItems : quintetas[currentQuinteta].items;
-    }
-
-    function getModeLabel() {
-      return mode === "review" ? `Repaso Q${currentQuinteta + 1}` : quintetas[currentQuinteta].name;
-    }
-
-    function renderSelector() {
-      selectEl.innerHTML = "";
-      quintetas.forEach((q, index) => {
-        const option = document.createElement("option");
-        option.value = String(index);
-        option.textContent = q.name;
-        option.selected = index === currentQuinteta;
-        selectEl.appendChild(option);
-      });
-    }
-
-    function renderCard() {
-      const items = getActiveItems();
-      const item = items[currentIndex];
-      modeLabelEl.textContent = getModeLabel();
-      progressEl.textContent = `${currentIndex + 1} de ${items.length}`;
-      scoreEl.textContent = `${solved.size} / ${items.length}`;
-      problemEl.innerHTML = `
-        <span>${item.a}</span>
-        <span>x</span>
-        <span>${item.b}</span>
-        <span class="equals">=</span>
-        <span class="answer">${item.answer}</span>
-      `;
-      cardEl.classList.toggle("revealed", revealed);
-      answerFormEl.classList.toggle("show", practiceMode === "eval");
-      hintEl.textContent = getHintText();
-      shuffleBtn.disabled = mode === "review";
-      micBtn.disabled = listening || !supportsSpeechRecognition();
-    }
-
-    function getHintText() {
-      if (practiceMode === "eval") {
-        return "Escribe o di el resultado";
-      }
-      return revealed ? "Toca otra vez para seguir" : "Toca para ver";
-    }
-
-    function selectQuinteta(index) {
-      clearVoiceTimers();
-      currentQuinteta = index;
-      currentIndex = 0;
-      revealed = false;
-      solved = new Set();
-      mode = "quinteta";
-      reviewItems = [];
-      renderSelector();
-      renderCard();
-      answerInputEl.value = "";
-    }
-
-    function revealAnswer() {
-      revealed = true;
-      solved.add(currentIndex);
-      renderCard();
-    }
-
-    function nextProblem() {
-      clearVoiceTimers();
-      currentIndex = (currentIndex + 1) % getActiveItems().length;
-      revealed = false;
-      answerInputEl.value = "";
-      renderCard();
-    }
-
-    function handleCardTap() {
-      if (practiceMode === "eval") {
-        answerInputEl.focus();
-        return;
-      }
-      if (revealed) {
-        nextProblem();
-        return;
-      }
-      revealAnswer();
-    }
-
-    function shuffleCurrent() {
-      clearVoiceTimers();
-      const items = quintetas[currentQuinteta].items;
-      for (let i = items.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [items[i], items[j]] = [items[j], items[i]];
-      }
-      currentIndex = 0;
-      revealed = false;
-      solved = new Set();
-      mode = "quinteta";
-      reviewItems = [];
-      answerInputEl.value = "";
-      renderCard();
-    }
-
-    function getCurrentAnswer() {
-      return getActiveItems()[currentIndex].answer;
-    }
-
-    function supportsSpeechRecognition() {
-      return "SpeechRecognition" in window || "webkitSpeechRecognition" in window;
-    }
-
-    function setupSpeechRecognition() {
-      if (!supportsSpeechRecognition()) {
-        micBtn.disabled = true;
-        micBtn.textContent = "Sin micro";
-        hintEl.textContent = "Este navegador no reconoce voz";
-        return;
-      }
-
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      recognition = new SpeechRecognition();
-      recognition.lang = "es-MX";
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 3;
-
-      recognition.addEventListener("start", () => {
-        listening = true;
-        micBtn.textContent = "Escuchando";
-        micBtn.classList.add("listening");
-        hintEl.textContent = "Di el resultado";
-        micBtn.disabled = true;
-      });
-
-      recognition.addEventListener("end", () => {
-        listening = false;
-        micBtn.textContent = "Hablar";
-        micBtn.classList.remove("listening");
-        micBtn.disabled = false;
-      });
-
-      recognition.addEventListener("result", (event) => {
-        const guesses = Array.from(event.results[0])
-          .map((result) => parseSpokenNumber(result.transcript))
-          .filter((value) => value !== null);
-        checkSpokenAnswer(guesses, event.results[0][0].transcript);
-      });
-
-      recognition.addEventListener("error", () => {
-        hintEl.textContent = "No escuche bien. Intenta otra vez";
-        showVoiceToast("try-again", "Intenta nuevamente", "No escuche bien");
-      });
-    }
-
-    function startListening() {
-      if (!recognition || listening) return;
-      try {
-        recognition.start();
-      } catch (error) {
-        hintEl.textContent = "Espera un momento e intenta otra vez";
-        showVoiceToast("try-again", "Intenta nuevamente", "Espera un momento");
-      }
-    }
-
-    function handleManualAnswer() {
-      const value = Number(answerInputEl.value);
-      if (answerInputEl.value.trim() === "" || Number.isNaN(value)) {
-        showIncorrectAnswer("Escribe un numero");
-        return;
-      }
-
-      if (value === getCurrentAnswer()) {
-        handleCorrectAnswer();
-        return;
-      }
-
-      showIncorrectAnswer("Intenta otra vez");
-    }
-
-    function checkSpokenAnswer(guesses, transcript) {
-      const answer = getCurrentAnswer();
-      if (guesses.includes(answer)) {
-        handleCorrectAnswer();
-        return;
-      }
-
-      const heard = transcript.trim();
-      const message = heard ? `Escuche "${heard}"` : "No escuche el resultado";
-      showIncorrectAnswer(message);
-    }
-
-    function handleCorrectAnswer() {
-      const answer = getCurrentAnswer();
-      revealed = true;
-      solved.add(currentIndex);
-      renderCard();
-      showVoiceToast("success", "Muy bien", `${answer} es correcto`);
-      voiceAdvanceTimer = window.setTimeout(() => {
-        nextProblem();
-      }, 900);
-    }
-
-    function showIncorrectAnswer(message) {
-      hintEl.textContent = "Intenta otra vez";
-      showVoiceToast("try-again", "Intenta nuevamente", message);
-    }
-
-    function showVoiceToast(kind, title, detail) {
-      window.clearTimeout(toastTimer);
-      toastEl.className = `toast ${kind} show`;
-      toastEl.setAttribute("aria-hidden", "false");
-      toastTitleEl.textContent = title;
-      toastDetailEl.textContent = detail;
-      toastTimer = window.setTimeout(() => {
-        toastEl.classList.remove("show");
-        toastEl.setAttribute("aria-hidden", "true");
-      }, kind === "success" ? 850 : 1250);
-    }
-
-    function clearVoiceTimers() {
-      window.clearTimeout(voiceAdvanceTimer);
-      window.clearTimeout(toastTimer);
-      toastEl.classList.remove("show");
-      toastEl.setAttribute("aria-hidden", "true");
-    }
-
-    function parseSpokenNumber(text) {
-      const clean = normalizeText(text);
-      const digitMatch = clean.match(/\d+/);
-      if (digitMatch) {
-        return Number(digitMatch[0]);
-      }
-
-      const compact = clean.replace(/\s+/g, "");
-      const compactNumbers = {
-        veintiuno: 21,
-        veintidos: 22,
-        veintitres: 23,
-        veinticuatro: 24,
-        veinticinco: 25,
-        veintiseis: 26,
-        veintisiete: 27,
-        veintiocho: 28,
-        veintinueve: 29
-      };
-      if (compactNumbers[compact] !== undefined) {
-        return compactNumbers[compact];
-      }
-
-      const values = {
-        cero: 0,
-        un: 1,
-        uno: 1,
-        una: 1,
-        dos: 2,
-        tres: 3,
-        cuatro: 4,
-        cinco: 5,
-        seis: 6,
-        siete: 7,
-        ocho: 8,
-        nueve: 9,
-        diez: 10,
-        once: 11,
-        doce: 12,
-        trece: 13,
-        catorce: 14,
-        quince: 15,
-        dieciseis: 16,
-        dieziseis: 16,
-        diecisiete: 17,
-        diezisiete: 17,
-        dieciocho: 18,
-        diecinueve: 19,
-        diezinueve: 19,
-        veinte: 20,
-        treinta: 30,
-        cuarenta: 40,
-        cincuenta: 50,
-        sesenta: 60,
-        setenta: 70,
-        ochenta: 80
-      };
-
-      if (values[clean] !== undefined) {
-        return values[clean];
-      }
-
-      const parts = clean.split(/\s+y\s+|\s+/).filter(Boolean);
-      if (parts.length === 2 && values[parts[0]] >= 20 && values[parts[1]] > 0 && values[parts[1]] < 10) {
-        return values[parts[0]] + values[parts[1]];
-      }
-
-      return null;
-    }
-
-    function normalizeText(text) {
-      return text
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[.,;:!?¿¡]/g, "")
-        .replace(/\s+/g, " ")
-        .trim();
-    }
-
-    function buildReview() {
-      clearVoiceTimers();
-      const pool = quintetas
-        .slice(0, currentQuinteta + 1)
-        .flatMap((q, qIndex) => q.items.map((item) => ({ ...item, quinteta: qIndex + 1 })));
-      reviewItems = sampleProblems(pool, 10);
-      mode = "review";
-      currentIndex = 0;
-      revealed = false;
-      solved = new Set();
-      answerInputEl.value = "";
-      renderCard();
-    }
-
-    function sampleProblems(pool, total) {
-      const shuffled = [...pool];
-      for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-      }
-
-      const selection = shuffled.slice(0, Math.min(total, shuffled.length));
-      while (selection.length < total) {
-        selection.push(pool[Math.floor(Math.random() * pool.length)]);
-      }
-      return selection.map((item) => ({ ...item }));
-    }
-
-    function resetCurrent() {
-      clearVoiceTimers();
-      quintetas[currentQuinteta] = copyQuinteta(originalQuintetas[currentQuinteta]);
-      currentIndex = 0;
-      revealed = false;
-      solved = new Set();
-      mode = "quinteta";
-      reviewItems = [];
-      answerInputEl.value = "";
-      renderSelector();
-      renderCard();
-    }
-
-    selectEl.addEventListener("change", (event) => {
-      selectQuinteta(Number(event.target.value));
-    });
-    practiceModeEl.addEventListener("change", (event) => {
-      clearVoiceTimers();
-      practiceMode = event.target.value;
-      revealed = false;
-      answerInputEl.value = "";
-      renderCard();
-      if (practiceMode === "eval") {
-        answerInputEl.focus();
-      }
-    });
-    answerFormEl.addEventListener("submit", (event) => {
-      event.preventDefault();
-      handleManualAnswer();
-    });
-    cardEl.addEventListener("click", handleCardTap);
-    micBtn.addEventListener("click", startListening);
-    reviewBtn.addEventListener("click", buildReview);
-    shuffleBtn.addEventListener("click", shuffleCurrent);
-    resetBtn.addEventListener("click", resetCurrent);
-
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "ArrowRight") nextProblem();
-      if (event.key === " " || event.key === "Enter") {
-        event.preventDefault();
-        handleCardTap();
-      }
+    problems.forEach((p, i) => {
+      const span = document.createElement("span");
+      span.className = "mult " + (colors[i] || "");
+      span.textContent = p;
+      span.style.animationDelay = (0.05 + i * 0.08) + "s";
+      mults.appendChild(span);
     });
 
-    renderSelector();
-    setupSpeechRecognition();
-    renderCard();
+    // ── 2. Confetti burst at ~1.4s ──
+    function spawnConfetti() {
+      const confettiColors = ["#197278","#d95d39","#2f6690","#f5c842","#12565b"];
+      for (let i = 0; i < 28; i++) {
+        const dot = document.createElement("div");
+        dot.className = "dot";
+        dot.style.background = confettiColors[i % confettiColors.length];
+        dot.style.left = (Math.random() * 100) + "vw";
+        dot.style.top  = (Math.random() * 40 + 30) + "vh";
+        document.body.appendChild(dot);
+
+        const tx = (Math.random() - .5) * 220;
+        const ty = (Math.random() * -180 - 30);
+        const rot = (Math.random() - .5) * 720;
+        const dur = 700 + Math.random() * 600;
+
+        dot.animate([
+          { opacity: 1, transform: "translate(0,0) rotate(0deg) scale(1)" },
+          { opacity: 0, transform: `translate(${tx}px,${ty}px) rotate(${rot}deg) scale(.3)` }
+        ], { duration: dur, delay: Math.random() * 200, easing: "cubic-bezier(.25,.46,.45,.94)", fill: "forwards" });
+
+        setTimeout(() => dot.remove(), dur + 400);
+      }
+    }
+
+    setTimeout(spawnConfetti, 1400);
+
+    // ── 3. Redirect after bar finishes ──
+    // Bar animation = 2.2s starting at 1.3s → done at ~3.5s
+    // Fade out at 3.0s, redirect at 3.6s
+    setTimeout(() => {
+      document.body.classList.add("leaving");
+    }, 3000);
+
+    setTimeout(() => {
+      window.location.href = "study.html";
+    }, 3600);
   </script>
 </body>
 </html>
