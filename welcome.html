@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Quintetas – Bienvenida</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --teal:    #197278;
+      --teal2:   #12565b;
+      --orange:  #d95d39;
+      --blue:    #2f6690;
+      --paper:   #fffaf0;
+      --ink:     #213036;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      background: var(--paper);
+      font-family: 'Nunito', sans-serif;
+    }
+
+    /* ── canvas decorative circles ── */
+    #bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .circle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0;
+      animation: floatIn 1s ease forwards;
+    }
+    .c1 { width: 340px; height: 340px; top: -100px; left: -80px;  background: radial-gradient(circle, #edf6f5, #c8e8e4); animation-delay: 0s; }
+    .c2 { width: 220px; height: 220px; bottom: -60px; right: -50px; background: radial-gradient(circle, #fde8e0, #f5c4b0); animation-delay: .15s; }
+    .c3 { width: 120px; height: 120px; top: 55%; left: 8%;  background: radial-gradient(circle, #d0ecf5, #b0d8ea); animation-delay: .25s; }
+    .c4 { width: 80px;  height: 80px;  top: 20%; right: 10%; background: radial-gradient(circle, #fdf0c2, #f5d97a); animation-delay: .35s; }
+
+    @keyframes floatIn {
+      from { opacity: 0; transform: scale(.7); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    /* ── main stage ── */
+    #stage {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      padding: 24px;
+    }
+
+    /* ── multiplications flying in ── */
+    #mults {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px 14px;
+      max-width: 340px;
+      margin-bottom: 28px;
+      min-height: 60px;
+    }
+    .mult {
+      font-family: 'Fredoka One', sans-serif;
+      font-size: clamp(1.05rem, 4.5vw, 1.3rem);
+      color: var(--teal);
+      opacity: 0;
+      transform: translateY(18px) scale(.85);
+      animation: popIn .45s cubic-bezier(.34,1.56,.64,1) forwards;
+    }
+    .mult.orange { color: var(--orange); }
+    .mult.blue   { color: var(--blue); }
+
+    @keyframes popIn {
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* ── star burst icon ── */
+    #icon {
+      font-size: clamp(3.8rem, 16vw, 5.5rem);
+      line-height: 1;
+      opacity: 0;
+      animation: zoomBounce .6s cubic-bezier(.34,1.56,.64,1) .4s forwards;
+      filter: drop-shadow(0 6px 14px rgba(25,114,120,.25));
+    }
+    @keyframes zoomBounce {
+      from { opacity: 0; transform: scale(.3) rotate(-15deg); }
+      to   { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+
+    /* ── title ── */
+    #title {
+      font-family: 'Fredoka One', sans-serif;
+      font-size: clamp(3rem, 14vw, 4.6rem);
+      color: var(--teal2);
+      line-height: 1;
+      letter-spacing: .5px;
+      text-align: center;
+      margin-top: 10px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: slideUp .5s ease .7s forwards;
+    }
+    @keyframes slideUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── subtitle ── */
+    #sub {
+      font-size: clamp(.95rem, 4vw, 1.18rem);
+      font-weight: 700;
+      color: #5a7a80;
+      text-align: center;
+      margin-top: 10px;
+      opacity: 0;
+      animation: slideUp .5s ease .95s forwards;
+      max-width: 280px;
+      line-height: 1.4;
+    }
+
+    /* ── progress bar ── */
+    #bar-wrap {
+      margin-top: 40px;
+      width: min(280px, 80%);
+      height: 8px;
+      background: #dde8e8;
+      border-radius: 99px;
+      overflow: hidden;
+      opacity: 0;
+      animation: fadeIn .4s ease 1.2s forwards;
+    }
+    #bar {
+      height: 100%;
+      width: 0%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--teal), var(--blue));
+      animation: grow 2.2s cubic-bezier(.4,0,.2,1) 1.3s forwards;
+    }
+    @keyframes grow {
+      to { width: 100%; }
+    }
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    /* ── fade out the whole page ── */
+    body.leaving {
+      animation: fadeOut .55s ease forwards;
+    }
+    @keyframes fadeOut {
+      to { opacity: 0; }
+    }
+
+    /* ── confetti dots ── */
+    .dot {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 50;
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Decorative background circles -->
+  <div id="bg">
+    <div class="circle c1"></div>
+    <div class="circle c2"></div>
+    <div class="circle c3"></div>
+    <div class="circle c4"></div>
+  </div>
+
+  <div id="stage">
+    <!-- Mini multiplications flying in -->
+    <div id="mults"></div>
+
+    <!-- Star icon -->
+    <div id="icon">⭐</div>
+
+    <!-- Title -->
+    <div id="title">Quintetas</div>
+
+    <!-- Subtitle -->
+    <div id="sub">Colegio Colón · Kaitlynn Priscila</div>
+
+    <!-- Loading bar -->
+    <div id="bar-wrap"><div id="bar"></div></div>
+  </div>
+
+  <script>
+    // ── 1. Generate flying multiplication problems ──
+    const problems = [
+      "6×9","7×8","7×6","6×8","4×8",
+      "7×7","9×6","8×7","5×8","9×9"
+    ];
+    const mults = document.getElementById("mults");
+    const colors = ["", "orange", "blue", "", "orange", "blue", "", "orange", "blue", ""];
+
+    problems.forEach((p, i) => {
+      const span = document.createElement("span");
+      span.className = "mult " + (colors[i] || "");
+      span.textContent = p;
+      span.style.animationDelay = (0.05 + i * 0.08) + "s";
+      mults.appendChild(span);
+    });
+
+    // ── 2. Confetti burst at ~1.4s ──
+    function spawnConfetti() {
+      const confettiColors = ["#197278","#d95d39","#2f6690","#f5c842","#12565b"];
+      for (let i = 0; i < 28; i++) {
+        const dot = document.createElement("div");
+        dot.className = "dot";
+        dot.style.background = confettiColors[i % confettiColors.length];
+        dot.style.left = (Math.random() * 100) + "vw";
+        dot.style.top  = (Math.random() * 40 + 30) + "vh";
+        document.body.appendChild(dot);
+
+        const tx = (Math.random() - .5) * 220;
+        const ty = (Math.random() * -180 - 30);
+        const rot = (Math.random() - .5) * 720;
+        const dur = 700 + Math.random() * 600;
+
+        dot.animate([
+          { opacity: 1, transform: "translate(0,0) rotate(0deg) scale(1)" },
+          { opacity: 0, transform: `translate(${tx}px,${ty}px) rotate(${rot}deg) scale(.3)` }
+        ], { duration: dur, delay: Math.random() * 200, easing: "cubic-bezier(.25,.46,.45,.94)", fill: "forwards" });
+
+        setTimeout(() => dot.remove(), dur + 400);
+      }
+    }
+
+    setTimeout(spawnConfetti, 1400);
+
+    // ── 3. Redirect after bar finishes ──
+    // Bar animation = 2.2s starting at 1.3s → done at ~3.5s
+    // Fade out at 3.0s, redirect at 3.6s
+    setTimeout(() => {
+      document.body.classList.add("leaving");
+    }, 3000);
+
+    setTimeout(() => {
+      window.location.href = "index.html";
+    }, 3600);
+  </script>
+</body>
+</html>
