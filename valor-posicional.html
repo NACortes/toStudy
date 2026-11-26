@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Valor Posicional</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:       #f5f0e8;
+      --paper:    #fffdf7;
+      --ink:      #1e2d35;
+      --muted:    #7a8e95;
+      --line:     #ddd5c0;
+      --shadow:   0 8px 28px rgba(30,45,53,.11);
+
+      --mil:      #197278;   /* millar  — teal   */
+      --cen:      #2f6690;   /* centena — blue   */
+      --dec:      #d95d39;   /* decena  — orange */
+      --uni:      #b5860d;   /* unidad  — amber  */
+
+      --mil-bg:   #e4f2f2;
+      --cen-bg:   #ddeaf5;
+      --dec-bg:   #fdeae4;
+      --uni-bg:   #fdf3d6;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { min-height: 100%; }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Nunito', sans-serif;
+      padding: clamp(14px, 4vw, 32px) clamp(12px, 4vw, 24px) 48px;
+    }
+
+    h1 {
+      font-family: 'Fredoka One', sans-serif;
+      font-size: clamp(1.8rem, 8vw, 2.6rem);
+      color: var(--mil);
+      text-align: center;
+      letter-spacing: .5px;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--muted);
+      font-size: .95rem;
+      font-weight: 700;
+      margin-bottom: clamp(20px, 5vw, 36px);
+    }
+
+    /* ── SECTION WRAPPER ── */
+    .section {
+      background: var(--paper);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: clamp(16px, 5vw, 28px);
+      max-width: 560px;
+      margin: 0 auto 24px;
+      border: 2px solid var(--line);
+    }
+
+    .section-title {
+      font-family: 'Fredoka One', sans-serif;
+      font-size: 1.15rem;
+      color: var(--muted);
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title span { font-size: 1.3rem; }
+
+    /* ══ SECTION A: número → descomponer ══ */
+    .numshow {
+      display: flex;
+      align-items: center;
+      gap: clamp(10px, 3vw, 20px);
+      flex-wrap: wrap;
+    }
+
+    .big-number {
+      font-family: 'Fredoka One', sans-serif;
+      font-size: clamp(3.2rem, 14vw, 5rem);
+      color: var(--ink);
+      line-height: 1;
+      min-width: 3ch;
+      text-align: center;
+      transition: all .35s ease;
+      letter-spacing: 2px;
+    }
+    .big-number.flash {
+      animation: numFlash .4s ease;
+    }
+    @keyframes numFlash {
+      0%   { transform: scale(.85); opacity: .3; }
+      60%  { transform: scale(1.08); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+
+    /* colored digit highlight inside the big number */
+    .big-number .d-m { color: var(--mil); }
+    .big-number .d-c { color: var(--cen); }
+    .big-number .d-d { color: var(--dec); }
+    .big-number .d-u { color: var(--uni); }
+
+    .boxes {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .box-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .box-label {
+      font-size: .72rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .box-label.m { color: var(--mil); }
+    .box-label.c { color: var(--cen); }
+    .box-label.d { color: var(--dec); }
+    .box-label.u { color: var(--uni); }
+
+    .box-input {
+      width: 100%;
+      aspect-ratio: 1;
+      min-width: 42px;
+      max-width: 62px;
+      border: 3px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      font-family: 'Fredoka One', sans-serif;
+      font-size: clamp(1.35rem, 5vw, 1.75rem);
+      text-align: center;
+      color: var(--ink);
+      outline: none;
+      transition: border-color .18s, background .18s, transform .15s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .box-input:focus { transform: scale(1.06); }
+
+    .box-input.m:focus { border-color: var(--mil); background: var(--mil-bg); }
+    .box-input.c:focus { border-color: var(--cen); background: var(--cen-bg); }
+    .box-input.d:focus { border-color: var(--dec); background: var(--dec-bg); }
+    .box-input.u:focus { border-color: var(--uni); background: var(--uni-bg); }
+
+    .box-input.correct {
+      border-color: #22a06b;
+      background: #e3faf0;
+      animation: correctPop .35s cubic-bezier(.34,1.56,.64,1);
+    }
+    .box-input.wrong {
+      border-color: #e03;
+      background: #fde8ec;
+      animation: shake .35s ease;
+    }
+    @keyframes correctPop {
+      0%   { transform: scale(.85); }
+      60%  { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25%      { transform: translateX(-5px); }
+      75%      { transform: translateX(5px); }
+    }
+
+    /* ── SECTION B: texto → número ── */
+    .worded {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .word-problem {
+      background: linear-gradient(135deg, #f0f9f8, #eaf3fb);
+      border: 2px solid #c8dde8;
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: clamp(1rem, 3.8vw, 1.13rem);
+      font-weight: 800;
+      line-height: 1.55;
+      color: var(--ink);
+      transition: opacity .3s;
+    }
+    .word-problem .wm { color: var(--mil); font-weight: 900; }
+    .word-problem .wc { color: var(--cen); font-weight: 900; }
+    .word-problem .wd { color: var(--dec); font-weight: 900; }
+    .word-problem .wu { color: var(--uni); font-weight: 900; }
+
+    .word-answer-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .word-label {
+      font-weight: 900;
+      font-size: .92rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .word-input {
+      font-family: 'Fredoka One', sans-serif;
+      font-size: clamp(1.5rem, 6vw, 2rem);
+      width: clamp(110px, 30vw, 150px);
+      text-align: center;
+      border: 3px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--ink);
+      padding: 6px 10px;
+      outline: none;
+      transition: border-color .18s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .word-input:focus { border-color: var(--cen); }
+    .word-input.correct {
+      border-color: #22a06b;
+      background: #e3faf0;
+      animation: correctPop .35s cubic-bezier(.34,1.56,.64,1);
+    }
+    .word-input.wrong {
+      border-color: #e03;
+      background: #fde8ec;
+      animation: shake .35s ease;
+    }
+
+    /* ── BUTTONS ── */
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      flex: 1;
+      min-height: 50px;
+      border: 0;
+      border-radius: 10px;
+      font-family: 'Nunito', sans-serif;
+      font-size: clamp(.9rem, 3.5vw, 1rem);
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform .12s, opacity .12s;
+    }
+    .btn:active { transform: scale(.96); }
+
+    .btn-check {
+      background: var(--mil);
+      color: #fff;
+    }
+    .btn-new {
+      background: var(--dec);
+      color: #fff;
+    }
+
+    /* ── FEEDBACK BADGE ── */
+    .feedback {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: .98rem;
+      font-weight: 900;
+      padding: 6px 14px;
+      border-radius: 99px;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity .25s, transform .25s;
+    }
+    .feedback.show { opacity: 1; transform: translateY(0); }
+    .feedback.ok  { background: #e3faf0; color: #1a7a50; }
+    .feedback.err { background: #fde8ec; color: #c0000a; }
+
+    /* ── SCORE ── */
+    .scorebar {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 20px;
+    }
+    .scorecard {
+      background: var(--paper);
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      padding: 8px 18px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+    .scorecard .sc-label {
+      font-size: .7rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: var(--muted);
+      letter-spacing: .5px;
+    }
+    .scorecard .sc-val {
+      font-family: 'Fredoka One', sans-serif;
+      font-size: 1.6rem;
+      color: var(--mil);
+      line-height: 1.1;
+    }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 99px; }
+  </style>
+</head>
+<body>
+
+  <h1>Valor Posicional</h1>
+  <p class="subtitle">Colegio Colón · Primaria</p>
+
+  <!-- Score -->
+  <div class="scorebar">
+    <div class="scorecard">
+      <div class="sc-label">Correctas</div>
+      <div class="sc-val" id="scoreOk">0</div>
+    </div>
+    <div class="scorecard">
+      <div class="sc-label">Intentos</div>
+      <div class="sc-val" id="scoreTotal">0</div>
+    </div>
+  </div>
+
+  <!-- ══ SECCIÓN A: número → descomponer ══ -->
+  <div class="section">
+    <div class="section-title"><span>🔢</span> Del número a sus partes</div>
+
+    <div class="numshow">
+      <div class="big-number" id="bigNum"><!-- js --></div>
+      <div class="boxes">
+        <div class="box-group">
+          <label class="box-label m" for="inM">Millares</label>
+          <input class="box-input m" id="inM" type="number" inputmode="numeric" min="0" max="9" autocomplete="off" placeholder="?">
+        </div>
+        <div class="box-group">
+          <label class="box-label c" for="inC">Centenas</label>
+          <input class="box-input c" id="inC" type="number" inputmode="numeric" min="0" max="9" autocomplete="off" placeholder="?">
+        </div>
+        <div class="box-group">
+          <label class="box-label d" for="inD">Decenas</label>
+          <input class="box-input d" id="inD" type="number" inputmode="numeric" min="0" max="9" autocomplete="off" placeholder="?">
+        </div>
+        <div class="box-group">
+          <label class="box-label u" for="inU">Unidades</label>
+          <input class="box-input u" id="inU" type="number" inputmode="numeric" min="0" max="9" autocomplete="off" placeholder="?">
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-check" id="checkA">✔ Revisar</button>
+      <button class="btn btn-new"   id="newA">🔀 Nuevo número</button>
+    </div>
+    <div style="margin-top:12px;">
+      <span class="feedback" id="fbA"></span>
+    </div>
+  </div>
+
+
+  <!-- ══ SECCIÓN B: texto → número ══ -->
+  <div class="section">
+    <div class="section-title"><span>📝</span> De las palabras al número</div>
+
+    <div class="worded">
+      <div class="word-problem" id="wordProblem"><!-- js --></div>
+
+      <div class="word-answer-row">
+        <span class="word-label">El número es:</span>
+        <input class="word-input" id="wordInput" type="number" inputmode="numeric" autocomplete="off" placeholder="????">
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-check" id="checkB">✔ Revisar</button>
+      <button class="btn btn-new"   id="newB">🔀 Nuevo problema</button>
+    </div>
+    <div style="margin-top:12px;">
+      <span class="feedback" id="fbB"></span>
+    </div>
+  </div>
+
+
+  <script>
+    // ── helpers ──────────────────────────────────────────────────
+    function rand4() {
+      // at least 1000 → always 4 digits
+      return Math.floor(Math.random() * 9000) + 1000;
+    }
+
+    function digits(n) {
+      const s = String(n).padStart(4, "0");
+      return { m: +s[0], c: +s[1], d: +s[2], u: +s[3] };
+    }
+
+    function coloreado(n) {
+      const { m, c, d, u } = digits(n);
+      return `<span class="d-m">${m}</span><span class="d-c">${c}</span><span class="d-d">${d}</span><span class="d-u">${u}</span>`;
+    }
+
+    // ── state ─────────────────────────────────────────────────────
+    let numA = 0, numB = 0;
+    let scoreOk = 0, scoreTotal = 0;
+
+    // ── score helpers ─────────────────────────────────────────────
+    function addScore(ok) {
+      scoreTotal++;
+      if (ok) scoreOk++;
+      document.getElementById("scoreOk").textContent    = scoreOk;
+      document.getElementById("scoreTotal").textContent = scoreTotal;
+    }
+
+    // ── SECTION A ─────────────────────────────────────────────────
+    function newNumA() {
+      numA = rand4();
+      const el = document.getElementById("bigNum");
+      el.innerHTML = coloreado(numA);
+      el.classList.remove("flash");
+      void el.offsetWidth;
+      el.classList.add("flash");
+
+      ["inM","inC","inD","inU"].forEach(id => {
+        const inp = document.getElementById(id);
+        inp.value = "";
+        inp.className = inp.className.replace(/ ?(correct|wrong)/g, "");
+      });
+      hideFb("fbA");
+    }
+
+    function checkA() {
+      const { m, c, d, u } = digits(numA);
+      const answers = [
+        { id: "inM", correct: m },
+        { id: "inC", correct: c },
+        { id: "inD", correct: d },
+        { id: "inU", correct: u },
+      ];
+
+      let allOk = true;
+      answers.forEach(({ id, correct }) => {
+        const inp = document.getElementById(id);
+        const val = parseInt(inp.value, 10);
+        inp.className = inp.className.replace(/ ?(correct|wrong)/g, "");
+        void inp.offsetWidth;
+        if (val === correct) {
+          inp.classList.add("correct");
+        } else {
+          inp.classList.add("wrong");
+          allOk = false;
+        }
+      });
+
+      addScore(allOk);
+      showFb("fbA", allOk,
+        allOk ? "¡Excelente! Descompusiste el número correctamente 🎉"
+               : "Revisa los recuadros marcados en rojo e intenta otra vez");
+    }
+
+    // ── SECTION B ─────────────────────────────────────────────────
+    const ones = ["cero","uno","dos","tres","cuatro","cinco","seis","siete","ocho","nueve"];
+
+    function wordFor(n, sing, plur) {
+      return `<strong>${n === 1 ? "1" : n}</strong> ${n === 1 ? sing : plur}`;
+    }
+
+    function buildWordProblem(n) {
+      const { m, c, d, u } = digits(n);
+      const parts = [
+        `<span class="wm">${wordFor(m, "unidad de millar", "unidades de millar")}</span>`,
+        `<span class="wc">${wordFor(c, "centena", "centenas")}</span>`,
+        `<span class="wd">${wordFor(d, "decena", "decenas")}</span>`,
+        `<span class="wu">${wordFor(u, "unidad", "unidades")}</span>`,
+      ];
+      return parts.join(", ");
+    }
+
+    function newNumB() {
+      numB = rand4();
+      document.getElementById("wordProblem").innerHTML = buildWordProblem(numB);
+      const inp = document.getElementById("wordInput");
+      inp.value = "";
+      inp.className = inp.className.replace(/ ?(correct|wrong)/g, "");
+      hideFb("fbB");
+    }
+
+    function checkB() {
+      const inp = document.getElementById("wordInput");
+      const val = parseInt(inp.value, 10);
+      inp.className = inp.className.replace(/ ?(correct|wrong)/g, "");
+      void inp.offsetWidth;
+      const ok = val === numB;
+      inp.classList.add(ok ? "correct" : "wrong");
+      addScore(ok);
+      showFb("fbB", ok,
+        ok ? `¡Muy bien! El número es ${numB} 🌟`
+           : `Intenta de nuevo. Pista: suma ${digits(numB).m}000 + ${digits(numB).c}00 + ${digits(numB).d}0 + ${digits(numB).u}`);
+    }
+
+    // ── feedback helpers ─────────────────────────────────────────
+    function showFb(id, ok, msg) {
+      const el = document.getElementById(id);
+      el.textContent = msg;
+      el.className = `feedback ${ok ? "ok" : "err"} show`;
+    }
+    function hideFb(id) {
+      const el = document.getElementById(id);
+      el.className = "feedback";
+      el.textContent = "";
+    }
+
+    // ── events ───────────────────────────────────────────────────
+    document.getElementById("checkA").addEventListener("click", checkA);
+    document.getElementById("newA").addEventListener("click",   newNumA);
+    document.getElementById("checkB").addEventListener("click", checkB);
+    document.getElementById("newB").addEventListener("click",   newNumB);
+
+    // Enter key support
+    ["inM","inC","inD","inU"].forEach(id =>
+      document.getElementById(id).addEventListener("keydown", e => {
+        if (e.key === "Enter") checkA();
+      })
+    );
+    document.getElementById("wordInput").addEventListener("keydown", e => {
+      if (e.key === "Enter") checkB();
+    });
+
+    // ── init ─────────────────────────────────────────────────────
+    newNumA();
+    newNumB();
+  </script>
+</body>
+</html>

@@ -77,6 +77,31 @@
       gap: clamp(8px, 2.4svw, 12px);
     }
 
+    .site-nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--line);
+    }
+
+    .site-nav a {
+      flex: 1;
+      padding: 8px 6px;
+      border-radius: 7px;
+      color: var(--muted);
+      font-size: .88rem;
+      font-weight: 900;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    .site-nav a:hover,
+    .site-nav a.active {
+      background: #e7f5f3;
+      color: var(--accent);
+    }
+
     .top-row {
       display: flex;
       align-items: center;
@@ -444,6 +469,12 @@
 <body>
   <main class="app">
     <header class="topbar">
+      <nav class="site-nav" aria-label="Navegación principal">
+        <a href="index.html">Inicio</a>
+        <a class="active" href="study.html">Quintetas</a>
+        <a href="tablas.html">Tablas</a>
+        <a href="juego.html">Juego</a>
+      </nav>
       <div class="top-row">
         <h1>Quintetas</h1>
         <div class="score" aria-live="polite">

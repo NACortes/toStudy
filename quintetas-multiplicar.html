@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-71FR5FQDS7"></script>
+  <script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+
+	gtag('config', 'G-71FR5FQDS7');
+  </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quintetas de Multiplicacion</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #24313a;
+      --muted: #62727d;
+      --paper: #fffdf7;
+      --line: #d8cab0;
+      --accent: #197278;
+      --accent-strong: #12565b;
+      --gold: #f2c14e;
+      --rose: #d95d39;
+      --green: #5b8c5a;
+      --shadow: 0 12px 30px rgba(36, 49, 58, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(242, 193, 78, 0.28), transparent 32rem),
+        linear-gradient(135deg, #f7f2e8 0%, #e8f3f2 52%, #f9efe8 100%);
+      color: var(--ink);
+    }
+
+    .app {
+      width: min(1120px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 26px 0 36px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: end;
+      padding: 8px 0 22px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 4rem);
+      line-height: 0.95;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .score {
+      min-width: 180px;
+      border: 2px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 253, 247, 0.9);
+      padding: 12px 14px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .score strong {
+      display: block;
+      font-size: 2rem;
+      color: var(--accent-strong);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(220px, 330px) 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .quintetas {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .q-button,
+    button {
+      border: 0;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .q-button {
+      min-height: 78px;
+      border: 2px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      color: var(--ink);
+      padding: 10px;
+      text-align: left;
+      box-shadow: 0 6px 16px rgba(36, 49, 58, 0.08);
+      transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+    }
+
+    .q-button:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+    }
+
+    .q-button.active {
+      background: #e5f4f2;
+      border-color: var(--accent);
+      outline: 3px solid rgba(25, 114, 120, 0.16);
+    }
+
+    .q-title {
+      display: block;
+      font-weight: 800;
+      font-size: 1rem;
+      text-transform: uppercase;
+    }
+
+    .q-detail {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .study {
+      min-height: 560px;
+      border: 2px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 253, 247, 0.92);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .study-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px;
+      border-bottom: 2px solid var(--line);
+      background: #fff8e8;
+    }
+
+    .study-top h2 {
+      margin: 0;
+      font-size: clamp(1.35rem, 3vw, 2rem);
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .progress {
+      color: var(--muted);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .flash-zone {
+      display: grid;
+      place-items: center;
+      min-height: 330px;
+      padding: 22px;
+    }
+
+    .flashcard {
+      width: min(620px, 100%);
+      min-height: 220px;
+      border: 3px dashed var(--accent);
+      border-radius: 8px;
+      background: #ffffff;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      user-select: none;
+      transition: transform 140ms ease, background 140ms ease;
+    }
+
+    .flashcard:hover {
+      transform: scale(1.01);
+      background: #fbfffe;
+    }
+
+    .problem {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: clamp(10px, 2.4vw, 22px);
+      font-weight: 900;
+      font-size: clamp(2.8rem, 10vw, 6rem);
+      line-height: 1;
+      text-align: center;
+    }
+
+    .answer {
+      min-width: 1.75em;
+      border: 4px solid var(--ink);
+      border-radius: 8px;
+      padding: 0.02em 0.16em 0.08em;
+      background: #fff;
+      color: transparent;
+    }
+
+    .flashcard.revealed .answer {
+      color: var(--rose);
+      border-color: var(--rose);
+      background: #fff4ef;
+    }
+
+    .hint {
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 1rem;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px 18px;
+    }
+
+    .control {
+      min-height: 46px;
+      border-radius: 8px;
+      padding: 0 16px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .control:hover {
+      background: var(--accent-strong);
+    }
+
+    .control.secondary {
+      background: #ffffff;
+      color: var(--ink);
+      border: 2px solid var(--line);
+    }
+
+    .control.secondary:hover {
+      background: #fff8e8;
+    }
+
+    .table-view {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(84px, 1fr));
+      gap: 8px;
+      padding: 16px;
+      border-top: 2px solid var(--line);
+      background: #f7fbfa;
+    }
+
+    .mini {
+      border: 2px solid #d7e4e2;
+      border-radius: 8px;
+      background: #fff;
+      padding: 8px;
+      min-height: 54px;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .mini.done {
+      border-color: rgba(91, 140, 90, 0.45);
+      color: var(--green);
+      background: #f4fbf2;
+    }
+
+    @media (max-width: 820px) {
+      header {
+        grid-template-columns: 1fr;
+      }
+
+      .score {
+        width: 100%;
+      }
+
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .quintetas {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 520px) {
+      .app {
+        width: min(100% - 18px, 1120px);
+        padding-top: 16px;
+      }
+
+      .quintetas,
+      .table-view {
+        grid-template-columns: 1fr;
+      }
+
+      .study-top {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .flash-zone {
+        min-height: 300px;
+        padding: 14px;
+      }
+
+      .flashcard {
+        min-height: 210px;
+      }
+
+      .control {
+        flex: 1 1 130px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div>
+        <h1>Quintetas</h1>
+        <p class="subtitle">Elige una quinteta, mira la operacion y da clic en la tarjeta para descubrir la respuesta.</p>
+      </div>
+      <div class="score" aria-live="polite">
+        Resueltas
+        <strong id="score">0 / 5</strong>
+      </div>
+    </header>
+
+    <section class="layout" aria-label="Practica de multiplicaciones por quintetas">
+      <nav class="quintetas" id="quintetaButtons" aria-label="Seleccionar quinteta"></nav>
+
+      <section class="study">
+        <div class="study-top">
+          <h2 id="quintetaTitle">Quinteta 1</h2>
+          <div class="progress" id="progress">Operacion 1 de 5</div>
+        </div>
+
+        <div class="flash-zone">
+          <button class="flashcard" id="flashcard" type="button" aria-label="Mostrar resultado">
+            <div>
+              <div class="problem" id="problem"></div>
+              <p class="hint" id="hint">Toca la tarjeta para ver el resultado</p>
+            </div>
+          </button>
+        </div>
+
+        <div class="controls">
+          <button class="control secondary" id="prevBtn" type="button">Anterior</button>
+          <button class="control" id="revealBtn" type="button">Mostrar</button>
+          <button class="control" id="nextBtn" type="button">Siguiente</button>
+          <button class="control" id="reviewBtn" type="button">Repaso</button>
+          <button class="control secondary" id="shuffleBtn" type="button">Mezclar</button>
+          <button class="control secondary" id="resetBtn" type="button">Reiniciar</button>
+        </div>
+
+        <div class="table-view" id="tableView" aria-label="Lista de operaciones de la quinteta"></div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const originalQuintetas = [
+      [[6, 9], [7, 8], [7, 6], [6, 8], [4, 8]],
+      [[4, 9], [7, 9], [7, 7], [6, 7], [4, 7]],
+      [[7, 5], [5, 9], [8, 8], [9, 7], [8, 5]],
+      [[9, 6], [3, 9], [8, 7], [5, 6], [4, 6]],
+      [[9, 4], [5, 8], [3, 8], [8, 6], [7, 4]],
+      [[6, 6], [9, 5], [8, 9], [3, 6], [8, 3]],
+      [[4, 4], [8, 4], [9, 8], [4, 3], [5, 7]],
+      [[9, 3], [4, 5], [3, 7], [6, 4], [6, 3]],
+      [[6, 5], [3, 4], [5, 5], [9, 9], [5, 3]],
+      [[5, 4], [0, 1], [7, 3], [3, 2], [6, 0]]
+    ].map((items, index) => ({
+      name: `Quinteta ${index + 1}`,
+      items: items.map(([a, b], itemIndex) => ({
+        a,
+        b,
+        answer: a * b,
+        number: index * 5 + itemIndex + 1
+      }))
+    }));
+
+    const quintetas = originalQuintetas.map(copyQuinteta);
+
+    let currentQuinteta = 0;
+    let currentIndex = 0;
+    let revealed = false;
+    let solved = new Set();
+    let mode = "quinteta";
+    let reviewItems = [];
+
+    const buttonsEl = document.getElementById("quintetaButtons");
+    const titleEl = document.getElementById("quintetaTitle");
+    const progressEl = document.getElementById("progress");
+    const scoreEl = document.getElementById("score");
+    const cardEl = document.getElementById("flashcard");
+    const problemEl = document.getElementById("problem");
+    const hintEl = document.getElementById("hint");
+    const tableEl = document.getElementById("tableView");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const revealBtn = document.getElementById("revealBtn");
+    const reviewBtn = document.getElementById("reviewBtn");
+    const shuffleBtn = document.getElementById("shuffleBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    function copyQuinteta(quinteta) {
+      return {
+        name: quinteta.name,
+        items: quinteta.items.map((item) => ({ ...item }))
+      };
+    }
+
+    function getActiveItems() {
+      return mode === "review" ? reviewItems : quintetas[currentQuinteta].items;
+    }
+
+    function getActiveTitle() {
+      return mode === "review" ? `Repaso hasta Quinteta ${currentQuinteta + 1}` : quintetas[currentQuinteta].name;
+    }
+
+    function renderButtons() {
+      buttonsEl.innerHTML = "";
+      quintetas.forEach((q, index) => {
+        const first = q.items[0];
+        const last = q.items[q.items.length - 1];
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `q-button${index === currentQuinteta ? " active" : ""}`;
+        button.innerHTML = `
+          <span class="q-title">${q.name}</span>
+          <span class="q-detail">${first.a} x ${first.b} ... ${last.a} x ${last.b}</span>
+        `;
+        button.addEventListener("click", () => selectQuinteta(index));
+        buttonsEl.appendChild(button);
+      });
+    }
+
+    function renderCard() {
+      const items = getActiveItems();
+      const item = items[currentIndex];
+      titleEl.textContent = getActiveTitle();
+      progressEl.textContent = `Operacion ${currentIndex + 1} de ${items.length}`;
+      scoreEl.textContent = `${solved.size} / ${items.length}`;
+      problemEl.innerHTML = `
+        <span>${item.a}</span>
+        <span>x</span>
+        <span>${item.b}</span>
+        <span>=</span>
+        <span class="answer">${item.answer}</span>
+      `;
+      cardEl.classList.toggle("revealed", revealed);
+      hintEl.textContent = revealed ? "Muy bien. Avanza a la siguiente." : "Toca la tarjeta para ver el resultado";
+      revealBtn.textContent = revealed ? "Ocultar" : "Mostrar";
+      shuffleBtn.disabled = mode === "review";
+      renderTable();
+    }
+
+    function renderTable() {
+      const items = getActiveItems();
+      tableEl.innerHTML = "";
+      items.forEach((item, index) => {
+        const mini = document.createElement("button");
+        mini.type = "button";
+        mini.className = `mini${solved.has(index) ? " done" : ""}`;
+        const source = mode === "review" ? ` Q${item.quinteta}` : "";
+        mini.textContent = revealed && index === currentIndex
+          ? `${item.a} x ${item.b} = ${item.answer}${source}`
+          : `${item.a} x ${item.b}${source}`;
+        mini.addEventListener("click", () => {
+          currentIndex = index;
+          revealed = solved.has(index);
+          renderCard();
+        });
+        tableEl.appendChild(mini);
+      });
+    }
+
+    function selectQuinteta(index) {
+      currentQuinteta = index;
+      currentIndex = 0;
+      revealed = false;
+      solved = new Set();
+      mode = "quinteta";
+      reviewItems = [];
+      renderButtons();
+      renderCard();
+    }
+
+    function toggleAnswer() {
+      revealed = !revealed;
+      if (revealed) {
+        solved.add(currentIndex);
+      }
+      renderCard();
+    }
+
+    function nextProblem() {
+      currentIndex = (currentIndex + 1) % getActiveItems().length;
+      revealed = solved.has(currentIndex);
+      renderCard();
+    }
+
+    function prevProblem() {
+      const items = getActiveItems();
+      currentIndex = (currentIndex - 1 + items.length) % items.length;
+      revealed = solved.has(currentIndex);
+      renderCard();
+    }
+
+    function shuffleCurrent() {
+      const items = quintetas[currentQuinteta].items;
+      for (let i = items.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [items[i], items[j]] = [items[j], items[i]];
+      }
+      currentIndex = 0;
+      revealed = false;
+      solved = new Set();
+      renderButtons();
+      renderCard();
+    }
+
+    function buildReview() {
+      const pool = quintetas
+        .slice(0, currentQuinteta + 1)
+        .flatMap((q, qIndex) => q.items.map((item) => ({ ...item, quinteta: qIndex + 1 })));
+      reviewItems = sampleProblems(pool, 10);
+      mode = "review";
+      currentIndex = 0;
+      revealed = false;
+      solved = new Set();
+      renderButtons();
+      renderCard();
+    }
+
+    function sampleProblems(pool, total) {
+      const shuffled = [...pool];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+
+      const selection = shuffled.slice(0, Math.min(total, shuffled.length));
+      while (selection.length < total) {
+        selection.push(pool[Math.floor(Math.random() * pool.length)]);
+      }
+      return selection.map((item) => ({ ...item }));
+    }
+
+    function resetCurrent() {
+      quintetas[currentQuinteta] = copyQuinteta(originalQuintetas[currentQuinteta]);
+      currentIndex = 0;
+      revealed = false;
+      solved = new Set();
+      mode = "quinteta";
+      reviewItems = [];
+      renderButtons();
+      renderCard();
+    }
+
+    cardEl.addEventListener("click", toggleAnswer);
+    revealBtn.addEventListener("click", toggleAnswer);
+    nextBtn.addEventListener("click", nextProblem);
+    prevBtn.addEventListener("click", prevProblem);
+    reviewBtn.addEventListener("click", buildReview);
+    shuffleBtn.addEventListener("click", shuffleCurrent);
+    resetBtn.addEventListener("click", resetCurrent);
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowRight") nextProblem();
+      if (event.key === "ArrowLeft") prevProblem();
+      if (event.key === " " || event.key === "Enter") {
+        event.preventDefault();
+        toggleAnswer();
+      }
+    });
+
+    renderButtons();
+    renderCard();
+  </script>
+</body>
+</html>
